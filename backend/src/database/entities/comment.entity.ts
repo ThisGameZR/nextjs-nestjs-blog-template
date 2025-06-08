@@ -13,7 +13,7 @@ export class Comment {
   })
   content: string;
 
-  @Column ({
+  @Column({
     type: 'uuid',
     comment: 'Post of the comment',
   })
@@ -25,11 +25,17 @@ export class Comment {
   })
   authorId: string;
 
-  @ManyToOne(() => User, (user) => user.comments)
+  @ManyToOne(() => User, (user) => user.comments, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'authorId' })
   author: User;
 
-  @ManyToOne(() => Post, (post) => post.comments)
+  @ManyToOne(() => Post, (post) => post.comments, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'postId' })
   post: Post;
 

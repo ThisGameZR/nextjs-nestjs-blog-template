@@ -43,7 +43,10 @@ export class Post {
   })
   authorId: string;
 
-  @ManyToOne(() => User, (user) => user.posts)
+  @ManyToOne(() => User, (user) => user.posts, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'authorId' })
   author: User;
 
@@ -57,7 +60,9 @@ export class Post {
   })
   updatedAt: Date;
 
-  @OneToMany(() => Comment, (comment) => comment.post)
+  @OneToMany(() => Comment, (comment) => comment.post, {
+    cascade: false,
+  })
   comments: Comment[];
 
 // Actually normally we would have soft delete, but for the sake of time, we will not have it
