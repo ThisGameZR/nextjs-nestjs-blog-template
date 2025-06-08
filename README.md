@@ -289,6 +289,238 @@ NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_API_BASE_PATH=/api/v1
 ```
 
+## 🚨 Error Handling System
+
+The frontend implements a sophisticated error handling system that provides consistent user experience across the application.
+
+### Architecture Overview
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   API Client    │────│ Error Provider  │────│  Sonner Toast   │
+│   (apiClient)   │    │ (Global Handler)│    │  (UI Display)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         │              ┌─────────────────┐              │
+         └──────────────│  Custom Hooks   │──────────────┘
+                        │ (useErrorHandling)│
+                        └─────────────────┘
+```
+
+### Core Components
+
+#### 1. **API Client (`services/apiClient.ts`)**
+
+The centralized HTTP client that automatically handles all API communication and error transformation:
+
+```typescript
+// Custom error classes for type-safe error handling
+export class ApiError extends Error {
+  constructor(
+    public statusCode: number,
+    public error: string,
+    public path: string,
+    public requestId?: string,
+    public errorCode?: string
+  ) { /* ... */ }
+}
+
+export class ValidationError extends ApiError {
+  constructor(
+    statusCode: number,
+    error: string,
+    path: string,
+    public validationErrors: string[],
+    public fieldErrors?: Record<string, string[]>
+  ) { /* ... */ }
+}
+```
+
+**Key Features:**
+- **Automatic Authentication:** Injects JWT tokens into requests
+- **Response Unwrapping:** Extracts data from backend `ApiResponse<T>` wrapper
+- **Error Transformation:** Converts Axios errors to typed custom errors
+- **Global Error Handling:** Routes errors to the global error handler
+- **Timeout Protection:** 10-second request timeout with proper error handling
+
+#### 2. **Error Handling Provider (`providers/ErrorHandlingProvider.tsx`)**
+
+React context provider that manages global error handling behavior:
+
+```typescript
+export type ErrorDisplayMode = 'toast' | 'silent' | 'custom';
+
+interface ErrorHandlingContextType {
+  setErrorMode: (mode: ErrorDisplayMode) => void;
+  handleError: (error: ApiError | ValidationError, customHandler?: Function) => void;
+}
+```
+
+**Error Display Modes:**
+- **`toast`** (default): Shows user-friendly toast notifications
+- **`silent`**: Logs errors without UI feedback
+- **`custom`**: Allows components to handle errors manually
+
+#### 3. **Toast Notifications (Sonner Integration)**
+
+Smart error display system that provides contextual feedback:
+
+**Validation Errors:**
+```typescript
+// Field-specific validation errors
+if (error.fieldErrors) {
+  const fieldMessages = Object.entries(error.fieldErrors)
+    .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+    .join('\n');
+  
+  toast.error('Validation Error', {
+    description: fieldMessages,
+    duration: 5000,
+  });
+}
+```
+
+**HTTP Status Error Mapping:**
+- `400` → "Bad Request"
+- `401` → "Unauthorized" (triggers logout)
+- `403` → "Forbidden"
+- `404` → "Not Found"
+- `409` → "Conflict"
+- `422` → "Validation Error"
+- `500` → "Server Error"
+
+### Usage Patterns
+
+#### 1. **Default Global Handling**
+
+Most API calls automatically display errors to users:
+
+```typescript
+// This will show a toast if an error occurs
+const posts = await apiClient.get<Post[]>('/posts');
+```
+
+#### 2. **Custom Error Handling**
+
+For specific scenarios requiring custom error handling:
+
+```typescript
+const { withCustomErrorHandling } = useCustomErrorHandling();
+
+const result = await withCustomErrorHandling(
+  () => apiClient.post('/posts', postData),
+  (error) => {
+    if (error.statusCode === 409) {
+      setConflictError('A post with this title already exists');
+    } else {
+      setGeneralError(error.message);
+    }
+  }
+);
+```
+
+#### 3. **Silent Error Handling**
+
+For background operations where UI feedback isn't needed:
+
+```typescript
+const { withSilentErrors } = useCustomErrorHandling();
+
+// This will log errors but not show toasts
+const data = await withSilentErrors(
+  () => apiClient.get('/user/preferences')
+);
+```
+
+#### 4. **Temporary Global Disable**
+
+For operations requiring complete custom control:
+
+```typescript
+const apiWithoutGlobal = await apiClient.withoutGlobalErrorHandling();
+try {
+  const result = await apiWithoutGlobal.post('/sensitive-operation', data);
+  // Handle success
+} catch (error) {
+  // Handle error completely manually
+}
+```
+
+### Error Types & Handling
+
+#### **Network Errors**
+```typescript
+// Connection issues, timeouts
+ApiError {
+  statusCode: 0,
+  error: "Network error occurred",
+  path: "unknown"
+}
+```
+
+#### **Validation Errors**
+```typescript
+// Backend validation failures
+ValidationError {
+  statusCode: 422,
+  error: "Validation failed",
+  validationErrors: ["Title is required", "Content must be at least 10 characters"],
+  fieldErrors: {
+    "title": ["Title is required"],
+    "content": ["Content must be at least 10 characters"]
+  }
+}
+```
+
+#### **Authentication Errors**
+```typescript
+// Unauthorized access - triggers automatic logout
+ApiError {
+  statusCode: 401,
+  error: "Unauthorized",
+  path: "/api/v1/posts"
+}
+// Automatically redirects to login page
+```
+
+### Configuration
+
+The error handling system is configured in the root providers:
+
+```typescript
+// app/providers.tsx
+<ErrorHandlingProvider defaultMode="toast">
+  {children}
+  <Toaster
+    position="top-right"
+    expand={true}
+    richColors
+    closeButton
+  />
+</ErrorHandlingProvider>
+```
+
+### Benefits
+
+✅ **Consistent UX:** All errors display consistently across the app  
+✅ **Type Safety:** Strongly typed error objects with full TypeScript support  
+✅ **Flexible Control:** Multiple modes for different use cases  
+✅ **Developer Friendly:** Detailed error information for debugging  
+✅ **User Friendly:** Human-readable error messages with proper context  
+✅ **Automatic Cleanup:** Built-in error recovery and state management  
+✅ **Performance:** Efficient error handling without blocking UI  
+
+### Debugging
+
+Error information includes:
+- **Request ID:** For backend correlation
+- **Error Code:** Specific error type identification
+- **Path:** Failed endpoint URL
+- **Timestamp:** When the error occurred
+- **Stack Trace:** Full error context in development
+
+All errors are logged to console with full context for debugging while showing appropriate user-facing messages.
+
 ## ✨ Features
 
 ### 🔐 Authentication
