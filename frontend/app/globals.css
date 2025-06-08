@@ -1,0 +1,102 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+:root {
+
+  /* Light theme - Modern accessible colors with hex values */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --radius: 0.5rem;
+
+  /* Card colors */
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+
+  /* Popover colors */
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+
+  /* Primary colors - Professional blue */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+
+  /* Secondary colors - Neutral gray */
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+
+  /* Muted colors */
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+
+  /* Accent colors */
+  --accent: #f1f5f9;
+  --accent-foreground: #0f172a;
+
+  /* Destructive colors - Professional red */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* Border and input */
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #2563eb;
+
+  --color-success: #49a569;
+
+  /* Chart colors */
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+
+  /* Sidebar colors */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #2563eb;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #2563eb;
+}
+
+@theme {
+  --color-green-500: #243831; /* Dark primary background */
+  --color-green-300: #2b5f44; /* Main button/action color */
+  --color-green-100: #d1fae5; /* Light background/cards */
+  --color-golden: #c5a365; /* Accent elements/highlight */
+
+  /* Base Colors */
+  --color-black: #000000; /* Background or bold text */
+  --color-white: #ffffff; /* Page background or containers */
+  --color-text: #191919; /* Body text */
+  --color-grey-100: #bbc2c0; /* Light border/input background */
+  --color-grey-300: #939494; /* Secondary/muted UI text */
+  --color-success: #49a569; /* Success states/messages/buttons */
+}
+
+@layer base {
+  * {
+
+  }
+  body {
+    
+  }
+}
+
+@layer utilities {
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+}
