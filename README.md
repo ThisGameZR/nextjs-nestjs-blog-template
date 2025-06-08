@@ -146,3 +146,19 @@ Comment {
 - **API Errors:** Toast notifications for failed requests
 - **Network Errors:** Retry mechanisms and offline indicators
 - **404 Pages:** Custom not found pages with navigation
+
+## Testing
+
+### How to test backend
+
+- Make sure to have the database running with `.env` file configured as `.env.example`
+- Run `pnpm test` to run the unit tests
+- Run `pnpm test:cov` to run the unit tests with coverage
+- Run `pnpm test:e2e` to run the tests
+
+### Testing Results
+
+![Unit Tests](./test-results/unit-test-coverage.png)
+
+![E2E Tests](./test-results/e2e-test.png)
+
