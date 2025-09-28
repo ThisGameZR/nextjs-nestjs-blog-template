@@ -1,4 +1,4 @@
-# Datawow Interview Project
+# nextjs-nestjs-blog-template
 
 A full-stack blog platform built with **Next.js** (Frontend) and **NestJS** (Backend), featuring authentication, CRUD operations for posts and comments, search functionality, and category filtering.
 
